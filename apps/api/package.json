@@ -8,6 +8,7 @@
     "start": "tsx src/server.ts",
     "postinstall": "prisma generate",
     "migrate:deploy": "prisma migrate deploy",
+    "seed:prod": "tsx prisma/seed.ts",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "test:watch": "vitest",
