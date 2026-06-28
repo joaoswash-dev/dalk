@@ -1,0 +1,136 @@
+import { useState } from 'react';
+import { Zap } from 'lucide-react';
+import { useAuthStore } from '../store/authStore';
+import { ApiError } from '../lib/api';
+
+export function Login() {
+  const login = useAuthStore((s) => s.login);
+  const register = useAuthStore((s) => s.register);
+
+  const [modo, setModo] = useState<'login' | 'register'>('login');
+  const [nome, setNome] = useState('');
+  const [email, setEmail] = useState('');
+  const [senha, setSenha] = useState('');
+  const [tipo, setTipo] = useState('R1');
+  const [erro, setErro] = useState('');
+  const [loading, setLoading] = useState(false);
+
+  async function submit(e: React.FormEvent) {
+    e.preventDefault();
+    setErro('');
+    setLoading(true);
+    try {
+      if (modo === 'login') await login(email, senha);
+      else await register(nome, email, senha, tipo);
+    } catch (err) {
+      setErro(err instanceof ApiError ? err.message : 'Não foi possível conectar ao servidor.');
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  return (
+    <div className="min-h-screen flex items-center justify-center bg-[#0a0c14] px-4">
+      <div className="w-full max-w-sm">
+        <div className="flex items-center justify-center gap-2 mb-8">
+          <div className="w-9 h-9 rounded-lg bg-blue-600 flex items-center justify-center">
+            <Zap size={18} className="text-white" />
+          </div>
+          <span className="font-bold text-white text-2xl tracking-wide">DALK</span>
+        </div>
+
+        <div className="bg-card border border-card-border rounded-2xl p-6">
+          <h1 className="text-lg font-bold text-white mb-1">
+            {modo === 'login' ? 'Entrar' : 'Criar conta'}
+          </h1>
+          <p className="text-sm text-gray-500 mb-5">
+            {modo === 'login'
+              ? 'Acesse sua plataforma de estudos.'
+              : 'Comece sua preparação para a residência.'}
+          </p>
+
+          <form onSubmit={submit} className="space-y-3">
+            {modo === 'register' && (
+              <div>
+                <label className="block text-xs text-gray-400 mb-1.5">Nome</label>
+                <input
+                  value={nome}
+                  onChange={(e) => setNome(e.target.value)}
+                  required
+                  className="w-full bg-[#0d1117] border border-card-border rounded-lg px-3 py-2.5 text-sm text-white focus:outline-none focus:border-blue-500"
+                />
+              </div>
+            )}
+
+            <div>
+              <label className="block text-xs text-gray-400 mb-1.5">E-mail</label>
+              <input
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+                className="w-full bg-[#0d1117] border border-card-border rounded-lg px-3 py-2.5 text-sm text-white focus:outline-none focus:border-blue-500"
+              />
+            </div>
+
+            <div>
+              <label className="block text-xs text-gray-400 mb-1.5">Senha</label>
+              <input
+                type="password"
+                value={senha}
+                onChange={(e) => setSenha(e.target.value)}
+                required
+                minLength={6}
+                className="w-full bg-[#0d1117] border border-card-border rounded-lg px-3 py-2.5 text-sm text-white focus:outline-none focus:border-blue-500"
+              />
+            </div>
+
+            {modo === 'register' && (
+              <div>
+                <label className="block text-xs text-gray-400 mb-1.5">Nível</label>
+                <select
+                  value={tipo}
+                  onChange={(e) => setTipo(e.target.value)}
+                  className="w-full bg-[#0d1117] border border-card-border rounded-lg px-3 py-2.5 text-sm text-white focus:outline-none focus:border-blue-500"
+                >
+                  <option value="R1">R1 (1º ano)</option>
+                  <option value="R2">R2 (2º ano)</option>
+                  <option value="R3">R3 (3º ano)</option>
+                  <option value="Pré">Pré-residência</option>
+                </select>
+              </div>
+            )}
+
+            {erro && (
+              <div className="bg-red-500/10 border border-red-500/30 rounded-lg px-3 py-2 text-xs text-red-400">
+                {erro}
+              </div>
+            )}
+
+            <button
+              type="submit"
+              disabled={loading}
+              className="w-full py-2.5 rounded-lg bg-blue-600 hover:bg-blue-700 disabled:bg-gray-700 text-white text-sm font-medium transition-colors"
+            >
+              {loading ? 'Aguarde...' : modo === 'login' ? 'Entrar' : 'Criar conta'}
+            </button>
+          </form>
+
+          <div className="mt-4 text-center">
+            <button
+              onClick={() => {
+                setModo(modo === 'login' ? 'register' : 'login');
+                setErro('');
+              }}
+              className="text-xs text-gray-500 hover:text-blue-400 transition-colors"
+            >
+              {modo === 'login'
+                ? 'Não tem conta? Cadastre-se'
+                : 'Já tem conta? Entrar'}
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}

@@ -3,7 +3,7 @@ import {
   LayoutDashboard, BarChart2, History, FileText,
   Calendar, Target, CheckSquare, Settings, Plus, LogOut, Zap,
 } from 'lucide-react';
-import { useStore } from '../../store/useStore';
+import { useAuthStore } from '../../store/authStore';
 
 const nav = [
   { to: '/',            icon: LayoutDashboard, label: 'Dashboard' },
@@ -22,7 +22,8 @@ interface Props {
 }
 
 export function Sidebar({ onAddRevisao, onAddFlashcard }: Props) {
-  const usuario = useStore(s => s.usuario);
+  const usuario = useAuthStore(s => s.usuario);
+  const logout = useAuthStore(s => s.logout);
 
   return (
     <aside className="fixed top-0 left-0 h-screen w-52 bg-[#0d1117] border-r border-card-border flex flex-col z-30">
@@ -77,14 +78,18 @@ export function Sidebar({ onAddRevisao, onAddFlashcard }: Props) {
       <div className="border-t border-card-border px-4 py-3 flex items-center justify-between">
         <div className="flex items-center gap-2 min-w-0">
           <div className="w-7 h-7 rounded-full bg-blue-600 flex items-center justify-center text-xs font-bold text-white flex-shrink-0">
-            {usuario.nome.slice(0, 2).toUpperCase()}
+            {(usuario?.nome ?? 'DA').slice(0, 2).toUpperCase()}
           </div>
           <div className="min-w-0">
-            <p className="text-xs font-medium text-gray-200 truncate">{usuario.nome}</p>
-            <p className="text-xs text-gray-500">{usuario.tipo} · Residência</p>
+            <p className="text-xs font-medium text-gray-200 truncate">{usuario?.nome ?? 'Residente'}</p>
+            <p className="text-xs text-gray-500">{usuario?.tipo ?? 'R1'} · Residência</p>
           </div>
         </div>
-        <button className="text-gray-500 hover:text-red-400 transition-colors flex-shrink-0">
+        <button
+          onClick={() => logout()}
+          className="text-gray-500 hover:text-red-400 transition-colors flex-shrink-0"
+          title="Sair"
+        >
           <LogOut size={14} />
         </button>
       </div>
